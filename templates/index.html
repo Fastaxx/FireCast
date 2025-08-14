@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FireCast — MVP ellipse</title>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Leaflet.draw -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+  <!-- html2canvas pour la capture carte -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+  <div id="sidebar">
+    <h1>🔥 FireCast — MVP ellipse</h1>
+    <p>Trace un <b>périmètre initial</b> puis lance la simulation. Démo non opérationnelle.</p>
+
+    <div class="form">
+      <label>Vent (m/s)
+        <input id="wind_ms" type="number" value="6" step="0.5" min="0" max="40" />
+      </label>
+      <label>Direction <small>(° <i>from</i> — 0=N, 90=E)</small>
+        <input id="wind_deg" type="number" value="0" step="5" min="0" max="360" />
+      </label>
+
+      <!-- Boussole from -> towards -->
+      <div class="compass-card">
+        <div class="compass">
+          <div class="ring"></div>
+          <div class="tick n">N</div>
+          <div class="tick e">E</div>
+          <div class="tick s">S</div>
+          <div class="tick w">W</div>
+          <div class="arrow from" id="arrow-from"></div>
+        </div>
+        <div class="compass-legend">
+          <div>From: <span id="from-deg">0°</span></div>
+          <div>Towards: <span id="towards-deg">180°</span></div>
+        </div>
+      </div>
+
+      <label>Base ROS (m/s)
+        <input id="base_ros_ms" type="number" value="0.02" step="0.005" min="0.001" max="0.2" />
+      </label>
+
+      <label>Pente tan(θ)
+        <input id="slope_tan" type="number" value="0.05" step="0.01" min="0" max="1" />
+      </label>
+
+      <label class="chk">
+        <input id="use_dem" type="checkbox" />
+        <span>Utiliser DEM (OpenTopoData — EU-DEM 25 m)</span>
+      </label>
+
+      <label class="chk">
+        <input id="use_meteo" type="checkbox" />
+        <span>Utiliser météo horaire (Open-Meteo)</span>
+      </label>
+
+      <label>Heures à simuler
+        <input id="hours" type="number" value="12" step="1" min="1" max="48" />
+      </label>
+
+      <label class="chk">
+        <input id="accumulate" type="checkbox" />
+        <span>Accumuler heure par heure (si météo horaire: imposé)</span>
+      </label>
+
+      <div class="buttons">
+        <button id="btn-simulate">Lancer</button>
+        <button id="btn-clear" class="secondary">Effacer</button>
+      </div>
+
+      <div id="slope-info" class="hint"></div>
+      <div id="meteo-info" class="hint"></div>
+
+      <!-- 🔸 Timeline -->
+      <div class="timeline">
+        <button id="tl-first" title="Début">⏮</button>
+        <button id="tl-prev"  title="-1h">⏪</button>
+        <button id="tl-play"  title="Lecture">▶</button>
+        <button id="tl-pause" title="Pause" style="display:none;">⏸</button>
+        <button id="tl-next"  title="+1h">⏩</button>
+        <button id="tl-last"  title="Fin">⏭</button>
+        <input id="tl-range" type="range" min="1" max="12" value="12" />
+        <span id="tl-label">H+12</span>
+        <select id="tl-speed" title="Vitesse">
+          <option value="0.5">0.5×</option>
+          <option value="1" selected>1×</option>
+          <option value="2">2×</option>
+          <option value="4">4×</option>
+        </select>
+      </div>
+
+      <div class="buttons">
+        <button id="btn-export-geojson" class="secondary">Export GeoJSON</button>
+        <button id="btn-export-pdf" class="secondary">PDF récap</button>
+      </div>
+
+      <div class="buttons">
+        <button id="btn-selftest" class="secondary">Tests rapides</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
