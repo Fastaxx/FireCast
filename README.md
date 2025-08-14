@@ -1,5 +1,7 @@
 # FireCast
 
+![Screenshot](docs/screen.png)
+
 Prototype (MVP) de simulation de propagation d’incendie **temps réel** côté serveur (Flask) avec **visualisation Leaflet** côté client.
 
 ## 🧩 Idée générale
